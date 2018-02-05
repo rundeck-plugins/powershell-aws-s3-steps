@@ -5,10 +5,22 @@
   Move AWS bucket objects
 .DESCRIPTION
   Move AWS bucket objects
-.PARAMETER accessKey
+.PARAMETER source
+    Source
+.PARAMETER destination
+    Destination
+.PARAMETER search_pattern
+    Destination
+.PARAMETER recursive
+    recursive
+.PARAMETER endpoint_url
+    endpoint_url
+.PARAMETER access_key
     AWS Access Key
-.PARAMETER secretKey
+.PARAMETER secret_access_key
     AWS Secret Key
+.PARAMETER default_region
+    AWS Default Region
 .NOTES
   Version:        1.0.0
   Author:         Rundeck
@@ -18,12 +30,25 @@
 
 
 Param (
-    [string]$accessKey,
-    [string]$secretKey
+	[string]$source,
+    [string]$destination,
+    [string]$search_pattern,
+    [string]$recursive,
+    [string]$endpoint_url,
+    [string]$access_key,
+    [string]$secret_access_key,
+    [string]$default_region
 )
 
 Begin {
-	Set-AWSCredential -AccessKey $accessKey -SecretKey $secretKey 
+
+	if (-not (Get-Module -listavailable -Name "AWSPowerShell")) {
+	    [Console]::WriteLine("AWSPowerShell not installed");
+	}
+
+	Import-Module AWSPowerShell 
+	
+	Set-AWSCredential -AccessKey $access_key -SecretKey $secret_access_key 
 
 	Function checkLocalPath($path){
 		$ValidPath = Test-Path $path -IsValid
@@ -47,26 +72,23 @@ Begin {
 
 Process {
 
-	$source=$Env:RD_CONFIG_SOURCE
-	$destination=$Env:RD_CONFIG_DESTINATION
-
 	$uriSource=[System.Uri]$source
 	$uriDestination=[System.Uri]$destination
 
 	$Params = @{}
 
-	if($Env:RD_CONFIG_DEFAULT_REGION){
-        $Params.add("Region", $Env:RD_CONFIG_DEFAULT_REGION) 
+	if (-Not $default_region.contains('config.') -And -Not ([string]::IsNullOrEmpty($default_region)) ) {
+        $Params.add("Region", $default_region) 
     }
 
-    if($Env:RD_CONFIG_ENDPOINT_URL){
-        $Params.add("EndpointUrl", $Env:RD_CONFIG_ENDPOINT_URL) 
+    if (-Not $endpoint_url.contains('config.') -And -Not ([string]::IsNullOrEmpty($endpoint_url)) ) {
+        $Params.add("EndpointUrl", $endpoint_url) 
     }
 
     $WriteParams = @{}
 
-	if($Env:RD_CONFIG_SEARCH_PATTERN){
-        $WriteParams.add("SearchPattern", $Env:RD_CONFIG_SEARCH_PATTERN) 
+	if (-Not $search_pattern.contains('config.') -And -Not ([string]::IsNullOrEmpty($search_pattern)) ) {
+        $WriteParams.add("SearchPattern", $search_pattern) 
     }
 
 	
@@ -139,7 +161,7 @@ Process {
 				$key =  $uriSource.AbsolutePath.Remove(0, 1)
 			}
 			
-			if($Env:RD_CONFIG_RECURSIVE){
+			if($recursive -eq "true"){
 		        Write-S3Object -BucketName $uriDestination.Authority -KeyPrefix $key -Folder $uriSource.LocalPath -Recurse @Params @WriteParams 
 		    }else{
 		    	Write-S3Object -BucketName $uriDestination.Authority -KeyPrefix $key -Folder $uriSource.LocalPath @Params @WriteParams 

@@ -5,13 +5,13 @@ author: Rundeck
 date: Tue Dic 12 2017
 providers:
   - name: aws-ps-s3-cp-step
-    service: WorkflowNodeStep
+    service: RemoteScriptNodeStep
     title: 'PS / aws / s3 / cp'
     description: 'Copies a local file or S3 object to another location locally or in S3.'
     plugin-type: script
     script-interpreter: powershell -NonInteractive -Noprofile -ExecutionPolicy Bypass -Command
     script-file: s3-cp.ps1
-    script-args: ${config.access_key} ${config.secret_access_key}
+    script-args: -source '${config.source}' -destination '${config.destination}' -search_pattern '${config.search_pattern}' -recursive '${config.recursive}' -endpoint_url ${config.endpoint_url} -access_key ${config.access_key} -secret_access_key ${config.secret_access_key} -default_region ${config.default_region}
     config:
       - type: String
         name: source
@@ -60,13 +60,13 @@ providers:
           grouping: secondary
           groupName: Connection
   - name: aws-ps-s3-mv-step
-    service: WorkflowNodeStep
+    service: RemoteScriptNodeStep
     title: 'PS / aws / s3 / mv'
     description: 'Moves a local file or S3 object to another location locally or in S3.'
     plugin-type: script
     script-interpreter: powershell -NonInteractive -Noprofile -ExecutionPolicy Bypass -Command
     script-file: s3-mv.ps1
-    script-args: ${config.access_key} ${config.secret_access_key}
+    script-args: -source '${config.source}' -destination '${config.destination}' -search_pattern '${config.search_pattern}' -recursive '${config.recursive}' -endpoint_url ${config.endpoint_url} -access_key ${config.access_key} -secret_access_key ${config.secret_access_key} -default_region ${config.default_region}
     config:
       - type: String
         name: source
@@ -115,13 +115,13 @@ providers:
           grouping: secondary
           groupName: Connection          
   - name: aws-ps-s3-sync-step
-    service: WorkflowNodeStep
+    service: RemoteScriptNodeStep
     title: 'PS / aws / s3 / sync'
     description: 'Syncs directories and S3 prefixes.'
     plugin-type: script
     script-interpreter: powershell -NonInteractive -Noprofile -ExecutionPolicy Bypass -Command
     script-file: s3-sync.ps1
-    script-args: ${config.access_key} ${config.secret_access_key}
+    script-args: -source '${config.source}' -destination '${config.destination}' -remove ${config.remove} -endpoint_url ${config.endpoint_url} -access_key ${config.access_key} -secret_access_key ${config.secret_access_key} -default_region ${config.default_region}
     config:
       - type: String
         name: source
