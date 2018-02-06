@@ -10,7 +10,7 @@ Run gradle build to build the zip file
 
 Copy the zip file to the %RDECK_BASE\libext folder
 
-## Requierments
+## Requirements
 
 This plugin needs that AWS SDK for Powershell to be installed on the Rundeck Server and the remote nodes. To install AWS SDK for Powershell you can:
 
